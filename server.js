@@ -28,15 +28,22 @@ const authorize = (req, res, next) => {
     }
 };
 
+// Array of valid card IDs
+const validCardIDs = ["773e8000", "72e0d200"];
+
 // Endpoint to validate card with authorization middleware
 app.post('/api/card_reader/validate_card', authorize, (req, res) => {
     const { cardID, readerID } = req.body;
 
-    // Log received data
-    console.log(`Received cardID: ${cardID}, readerID: ${readerID}`);
+    // Log received data with date and time
+    const currentDate = new Date();
+    console.log(`[${currentDate}] Received cardID: ${cardID}, readerID: ${readerID}`);
 
-    // Simulated validation logic
-    if (cardID === "72e0d200" && readerID === "IndalaReader1") {
+    // Set Content-Type header
+    res.setHeader('Content-Type', 'application/json');
+
+    // Check if the cardID is in the valid card IDs array
+    if (validCardIDs.includes(cardID)) {
         res.status(200).json({ message: "Card authorized", status: "success" });
     } else {
         res.status(403).json({ message: "Card not authorized", status: "failure" });
