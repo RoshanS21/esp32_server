@@ -17,13 +17,19 @@ const authorize = (req, res, next) => {
         const decodedAuth = decodeBase64(auth);
         const [username, password] = decodedAuth.split(':');
 
+        // Log authorization attempt
+        console.log(`[Authorization Attempt] Username: ${username}`);
+
         // Verify username and password
         if (username === 'cardReader' && password === 'readerPass') {
+            console.log(`[Authorization Success] Username: ${username}`);
             next(); // Authorized, proceed to the next middleware
         } else {
+            console.log(`[Authorization Failure] Invalid credentials for Username: ${username}`);
             res.status(401).json({ message: 'Unauthorized' });
         }
     } else {
+        console.log(`[Authorization Failure] Authorization header missing`);
         res.status(401).json({ message: 'Authorization header missing' });
     }
 };
@@ -37,20 +43,17 @@ app.post('/api/card_reader/validate_card', authorize, (req, res) => {
 
     // Log received data with date and time
     const currentDate = new Date();
-    console.log(`[${currentDate}] Received cardID: ${cardID}, readerID: ${readerID}`);
+    console.log(`[Card Validation Request] [${currentDate}] cardID: ${cardID}, readerID: ${readerID}`);
 
     // Set Content-Type header
     res.setHeader('Content-Type', 'application/json');
 
-    // Check if the cardID is in the valid card IDs array
-    if (validCardIDs.includes(cardID)) {
-        res.status(200).json({ message: "Card authorized", status: "success" });
-    } else {
-        res.status(403).json({ message: "Card not authorized", status: "failure" });
-    }
+    // Always authorize the card
+    console.log(`[Card Validation Success] cardID: ${cardID} authorized`);
+    res.status(200).json({ message: "Card authorized", status: "success" });
 });
 
 // Start the server
 app.listen(port, () => {
-    console.log(`Server running at http://localhost:${port}`);
+    console.log(`[Server Start] Server running at http://localhost:${port}`);
 });
